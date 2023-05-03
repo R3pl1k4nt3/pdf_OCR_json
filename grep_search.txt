@@ -1,0 +1,15 @@
+grep -r --include=\*.txt 'searchterm' ./
+...or case-insensitive version...
+
+grep -r -i --include=\*.txt 'searchterm' ./
+grep: command
+
+-r: recursively
+
+-i: ignore-case
+
+--include: all *.txt: text files (escape with \ just in case you have a directory with asterisks in the filenames)
+
+'searchterm': What to search
+
+./: Start at current directory.
