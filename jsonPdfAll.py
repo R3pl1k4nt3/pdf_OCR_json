@@ -7,8 +7,7 @@ from PIL import Image
 from pdf2image import convert_from_path
 from PyPDF2 import PdfFileReader, PdfFileWriter
 import numpy as np
-import tabula
-import pandas as pd
+
 
 # Configuración de Tesseract OCR
 pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract' 
