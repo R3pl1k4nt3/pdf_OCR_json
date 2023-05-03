@@ -76,3 +76,10 @@ for root, dirs, files in os.walk(root_folder):
             output_path = os.path.join(root, f"{pdf_name}.json")
             with open(output_path, 'w') as outfile:
                 json.dump(json_obj, outfile, ensure_ascii=False, indent=4)
+            
+            # Crear archivo de salida en formato TXT
+            output_txt_path = os.path.join(root, f"{pdf_name}.txt")
+            with open(output_txt_path, 'w') as f:
+                for page in json_obj.keys():
+                    for line in json_obj[page]:
+                        f.write(f"file: '{pdf_name}.json' page {page}, line {line}\n")
