@@ -14,8 +14,7 @@ pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
 tessdata_dir_config = '--tessdata-dir "/usr/share/tesseract-ocr/5/tessdata" -l spa'
 
 # Ruta a la carpeta raíz de los PDFs
-#root_folder = '/home/alex/OCR/scripts/pdf/'
-root_folder = '/home/alex/pdfs/CHATARRAS/CHATARRA 1991/Chatarra Albacete'
+root_folder = '/home/alex/OCR/scripts/pdf/'
 
 
 # Función para preprocesar la imagen antes de pasarla por el OCR
@@ -49,14 +48,11 @@ for root, dirs, files in os.walk(root_folder):
             pdf_path = os.path.join(root, file)
             pdf_name, pdf_ext = os.path.splitext(file)
             
-            # Si el archivo es un PDF
+            
+            # Si es un archivo PDF
             if pdf_ext.lower() == '.pdf':
                 # Convierte el PDF a una lista de imágenes
                 pages = convert_from_path(pdf_path, 300)
-
-                # Función para preprocesar la imagen antes de pasarla por el OCR
-        
-                # Procesa cada página con Tesseract OCR y extrae el texto
                 text = []
                 for page in pages:
                     img_byte_arr = io.BytesIO()
@@ -87,31 +83,49 @@ for root, dirs, files in os.walk(root_folder):
                     for page in json_obj.keys():
                         for line in json_obj[page]:
                             f.write(f"file: '{pdf_name}.json' page {page}, line {line}\n")
-                            
-              # Si el archivo es un TIFF
-            elif pdf_ext.lower() in ('.tif', '.tiff'):
-                # Carga la imagen TIFF con OpenCV
+
+            # Si es un archivo TIFF o TIF
+            else:
+                # Lee el archivo TIFF o TIF como una imagen
                 image = cv2.imread(pdf_path)
-                # Preprocesamiento de la imagen antes de pasarla por el OCR
-                image_processed = preprocess_image(image)
-                # Convierte la imagen preprocesada a un objeto PIL para pasarla por el OCR
-                img_pil = Image.fromarray(image_processed)
-                # Ejecuta Tesseract OCR en la imagen
-                text = pytesseract.image_to_string(img_pil, lang='spa', config=tessdata_dir_config)
-                
+                # Convierte la imagen a una lista para simular el procesamiento de PDF
+                pages = [Image.fromarray(image)]
+                text = []
+                for page in pages:
+                    img_byte_arr = io.BytesIO()
+                    page.save(img_byte_arr, format='JPEG')
+                    img_byte_arr = img_byte_arr.getvalue()
+                    # Convierte la imagen a un array de Numpy para poder preprocesarla
+                    nparr = np.frombuffer(img_byte_arr, np.uint8)
+                    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                    image = preprocess_image(image)
+                    # Convierte la imagen preprocesada a un objeto PIL para pasarla por el OCR
+                    img_pil = Image.fromarray(image)
+                    page_text = pytesseract.image_to_string(img_pil, lang='spa', config=tessdata_dir_config)
+                    text.append(page_text)
+
                 # Convierte el texto en un objeto JSON estructurado
-                json_obj = {"Page 1": text.strip().split('\n')}
-                
-                # Guarda el objeto JSON en un archivo en la misma carpeta que el archivo TIFF original
-                output_path = os.path.join(root, f"{pdf_name}.json")
+                json_obj = {}
+                for idx, page in enumerate(text):
+                    json_obj[f"Page {idx+1}"] = page.strip().split('\n')
+
+                # Guarda el objeto JSON en un archivo en la misma carpeta que el archivo PDF original
+                output_path = os.path.join(root, f"{pdf_name}tif.json")
                 with open(output_path, 'w') as outfile:
                     json.dump(json_obj, outfile, ensure_ascii=False, indent=4)
-
+                
                 # Crear archivo de salida en formato TXT
-                output_txt_path = os.path.join(root, f"{pdf_name}.txt")
+                output_txt_path = os.path.join(root, f"{pdf_name}tif.txt")
                 with open(output_txt_path, 'w') as f:
                     for page in json_obj.keys():
                         for line in json_obj[page]:
-                            f.write(f"file: '{pdf_name}.json' page {page}, line {line}\n")            
+                            f.write(f"file: '{pdf_name}.json' page {page}, line {line}\n")
+            
+            
+            
+            
+            
+                        
+                       
                 
             
