@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version= 1.0
+Icon= /home/alex/Escritorio/pistola.jpeg
+Name=chatarrero
+Exec=python /home/alex/Escritorio/lanzaScript.py
+Terminal=true
+Type=Application
